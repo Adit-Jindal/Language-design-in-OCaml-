@@ -18,7 +18,11 @@ type token =
   | LBKT
   | RBKT
   | COMMA
+  | DOT
+  | MOD
   | EOL
+  | DIM
+  | ANGLE
 
 val main :
   (Lexing.lexbuf  -> token) -> Lexing.lexbuf -> Ast.exp

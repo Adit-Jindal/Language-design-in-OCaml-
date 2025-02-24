@@ -10,7 +10,11 @@ rule token = parse
     | '+'            { PLUS }
     | '-'            { MINUS }
     | '*'            { TIMES }
+    | '.'            { DOT }
     | '/'            { DIV }
+    | '|'            { MOD }
+    | ['d']['i']['m']{ DIM }
+    | '^'            { ANGLE }
     | '('            { LPAREN }
     | ')'            { RPAREN }
     | '['            { LBKT }
