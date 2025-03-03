@@ -1,6 +1,7 @@
 type exp =
 | Intex of int
 | Fltex of float
+| Boolex of bool
 | Addex of exp*exp
 | Subex of exp*exp
 | Mulex of exp*exp
@@ -42,12 +43,12 @@ end = struct
                         [a] -> Eval.eval (Addex (Intex 1, sum))
                         | a::aas -> Eval.eval (Addex ((Eval.eval (Addex (Intex 1, sum))), dim aas))
                         | _ -> failwith "Invalid vector for dimensions"
-  let angle v1 v2 = let mag1= magnitude v1 and mag2= magnitude v2 in
+  let angle v1 v2 = let mag1= magnitude v1 in let mag2= magnitude v2 in
                         if (mag1=Fltex 0. || mag2=Fltex 0.) then failwith "Angle is not defined for zero vectors"
                         else let projection = dotprod v1 v2 in match projection with
-                        Fltex f -> Eval.eval (Divex (Fltex f, Eval.eval (Mulex (mag1, mag2))))
-                        | Intex i -> Eval.eval (Divex (Intex i, Eval.eval (Mulex (mag1, mag2))))
-                        | _ -> failwith "invalid dot product"
+                        Fltex f -> Eval.eval (Divex (projection, Eval.eval (Mulex (mag1, mag2))))
+                        | Intex i -> Eval.eval (Divex (projection, Eval.eval (Mulex (mag1, mag2))))
+                        | _ -> failwith "invalid dot product" (*------------------------GIVES COS OF ANGLE--------------------------------*)
   end
 
 and Eval : sig
@@ -56,11 +57,13 @@ end = struct
   let rec eval = function
   | Intex n -> Intex n
   | Fltex f -> Fltex f
+  | Boolex b -> Boolex b
   | Addex (a,b) -> let ans = match a,b with
       Intex a1, Intex b1 -> Intex (a1+b1)
       | Intex a1, Fltex b1 -> Fltex (float_of_int a1 +. b1)
       | Fltex a1, Intex b1 -> Fltex (a1 +. float_of_int b1)
       | Fltex a1, Fltex b1 -> Fltex (a1 +. b1)
+      | Boolex b1, Boolex b2 -> Boolex (b1 || b2)
       | Vectex v1, Vectex v2 -> VectorOps.addvec v1 v2
       | _ , _ -> Addex(eval a, eval b)
       in ans
@@ -69,6 +72,8 @@ end = struct
       | Intex a1, Fltex b1 -> Fltex (float_of_int a1 -. b1)
       | Fltex a1, Intex b1 -> Fltex (a1 -. float_of_int b1)
       | Fltex a1, Fltex b1 -> Fltex (a1 -. b1)
+      | Boolex b1, Boolex b2 -> Boolex (b1 || not b2)
+      | Fltex 0., Boolex b -> Boolex (not b)
       | Vectex v1, Vectex v2 -> eval (Addex (a, eval (Mulex(Fltex (-1.), b))))
       | _ , _ -> Subex(eval a, eval b)
       in ans
@@ -77,6 +82,7 @@ end = struct
       | Intex a1, Fltex b1 -> Fltex (float_of_int a1 *. b1)
       | Fltex a1, Intex b1 -> Fltex (a1 *. float_of_int b1)
       | Fltex a1, Fltex b1 -> Fltex (a1 *. b1)
+      | Boolex b1, Boolex b2 -> Boolex (b1 && b2)
       | Intex k, Vectex v -> VectorOps.scalevec a v
       | Fltex k, Vectex v -> VectorOps.scalevec a v
       | _ , _ -> Mulex(eval a, eval b)

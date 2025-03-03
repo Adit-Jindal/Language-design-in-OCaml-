@@ -1,5 +1,6 @@
 %token <int> INT
 %token <float> FLOAT
+%token <bool> BOOL
 %token PLUS MINUS TIMES DIV
 %token LPAREN RPAREN LBKT RBKT COMMA DOT MOD
 %token EOL DIM ANGLE
@@ -15,6 +16,7 @@ main:
 expr:
     INT                     { Ast.Intex $1 }
     | FLOAT                 { Ast.Fltex $1 }
+    | BOOL                  { Ast.Boolex $1 }
     | LPAREN expr RPAREN      { $2 }
     | expr PLUS expr          { Ast.Addex ($1, $3) }
     | expr MINUS expr         { Ast.Subex($1, $3) }

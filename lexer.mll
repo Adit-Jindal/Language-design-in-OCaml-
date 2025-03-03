@@ -7,6 +7,8 @@ rule token = parse
     | ['\n' ]        { EOL }
     | ['0'-'9']+ as lxm { INT(int_of_string lxm) }
     | ['0'-'9']+ '.' ['0'-'9']* as lxm { FLOAT(float_of_string lxm) }
+    | 'T'            { BOOL (true) }
+    | 'F'            { BOOL (false) }
     | '+'            { PLUS }
     | '-'            { MINUS }
     | '*'            { TIMES }

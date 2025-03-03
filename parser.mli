@@ -9,6 +9,11 @@ type token =
         float
 # 11 "parser.mli"
 )
+  | BOOL of (
+# 3 "parser.mly"
+        bool
+# 16 "parser.mli"
+)
   | PLUS
   | MINUS
   | TIMES

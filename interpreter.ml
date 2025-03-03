@@ -1,6 +1,8 @@
 let rec print_exp = function
 Ast.Intex n -> print_int n
 | Ast.Fltex f -> print_float f
+| Ast.Boolex true -> print_string "true"
+| Ast.Boolex false -> print_string "false"
 | Ast.Vectex v -> Printf.printf "[";
                               List.iter (fun e -> print_exp e; Printf.printf ", ";) v;
                               Printf.printf "]"
