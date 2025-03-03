@@ -6,6 +6,8 @@ Ast.Intex n -> print_int n
 | Ast.Vectex v -> Printf.printf "[";
                               List.iter (fun e -> print_exp e; Printf.printf ", ";) v;
                               Printf.printf "]"
+| Ast.Seqex v -> List.iter (fun e -> print_exp e; Printf.printf " ";) v
+| Ast.Letex (v, e) -> print_string v; print_string "="; print_exp e;
 | _ -> failwith "Not a valid result type"
 
 let main() =

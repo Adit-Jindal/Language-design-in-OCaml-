@@ -7,8 +7,9 @@ rule token = parse
     | ['\n' ]        { EOL }
     | ['0'-'9']+ as lxm { INT(int_of_string lxm) }
     | ['0'-'9']+ '.' ['0'-'9']* as lxm { FLOAT(float_of_string lxm) }
-    | 'T'            { BOOL (true) }
-    | 'F'            { BOOL (false) }
+    | ['A'-'Z']+ as lxm { VAR(lxm) }
+    | 't'            { BOOL (true) }
+    | 'f'            { BOOL (false) }
     | '+'            { PLUS }
     | '-'            { MINUS }
     | '*'            { TIMES }
@@ -21,5 +22,12 @@ rule token = parse
     | ')'            { RPAREN }
     | '['            { LBKT }
     | ']'            { RBKT }
+    | '{'            { LBRACES }
+    | '}'            { RBRACES }
     | ','            { COMMA }
+    | ';'            { SEMICOLON }
+    | ['i']['f']     { IF }
+    | ['t']['h']['e']['n']        { THEN }
+    | ['e']['l']['s']['e']        { ELSE }
+    | [':']['=']     { ASSIGN }
     | eof            { raise Eof }

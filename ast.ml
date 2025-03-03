@@ -2,6 +2,8 @@ type exp =
 | Intex of int
 | Fltex of float
 | Boolex of bool
+| Letex of string*exp
+| Varex of string
 | Addex of exp*exp
 | Subex of exp*exp
 | Mulex of exp*exp
@@ -11,7 +13,10 @@ type exp =
 | Magex of exp
 | Dimex of exp
 | Anglex of exp*exp
+| Seqex of exp list
+| Cndex of exp*exp*exp
 
+let var_list : (string*exp) list ref = ref []
 
 module rec VectorOps : sig
   val sumElements : exp list -> exp
@@ -27,18 +32,41 @@ end = struct
     | a :: b :: c -> sumElements (Eval.eval (Addex(a,b)) :: c)
     | [] -> failwith "Empty vector"
     in ans
+  let minor matrix i j = (* RETURNS A LIST OF LISTS, AND NOT AN EXP, UNLIKE ALL OTEHR FUNCTIONS*)
+    let rec remove_row m i = match m with
+      [] -> []
+      | row::rest -> if i=0 then rest else row::(remove_row rest (i-1))
+    in
+    let rowless_m = remove_row matrix i in
+    List.map (fun x -> match x with (Vectex row) -> Vectex ((List.filteri (fun ix _ -> ix <> j) row)) | _ -> failwith "Expected a vector expression") rowless_m
+  let rec determinant m = match m with
+    [] -> Intex 0
+    | [Vectex [x]] -> x
+    | _ ->
+      let rec cofactor_exp m index row = match row with
+        Vectex [] -> Intex 0
+        | Vectex (head::rest) ->
+          let sign = if index mod 2 = 0 then Intex 1 else Intex (-1) in
+          let min_det = determinant (minor m 0 index) in
+          Eval.eval (Addex(Eval.eval (Mulex(Eval.eval (Mulex(sign, head)), min_det)), cofactor_exp m (index+1) (Vectex rest)))
+        | _ -> failwith "Invalid row syntax"
+      in cofactor_exp m 0 (List.hd m)
   let dotprod v1 v2 = List.map2 (fun e1 e2 -> Eval.eval (Mulex (e1, e2))) v1 v2
                       |> sumElements
-  let magnitude v = List.map (Eval.eval) v
-                    |> List.map (fun x -> Eval.eval (Mulex(x,x)))
-                    |> sumElements
-                    |> let rec numerical = function
-                      Intex a -> Fltex (sqrt (float_of_int a))
-                      | Fltex a -> Fltex (sqrt a)
-                      | _ -> failwith "Not a valid numerical value"
-                      in numerical
+  let magnitude v = let ans = match v with
+                    Vectex a :: v1 -> if List.for_all (fun x -> (Eval.eval (Dimex x) = VectorOps.dim v)) v then determinant v
+                                      else failwith "Not a square matrix"
+                    | _ -> List.map (Eval.eval) v
+                      |> List.map (fun x -> Eval.eval (Mulex(x,x)))
+                      |> sumElements
+                      |> let rec numerical = function
+                        Intex a -> Fltex (sqrt (float_of_int a))
+                        | Fltex a -> Fltex (sqrt a)
+                        | _ -> failwith "Not a valid numerical value"
+                        in numerical
+                    in ans
   let addvec v1 v2 = Vectex (List.map2 (fun a b -> (Eval.eval (Addex(a,b)))) v1 v2)
-  let scalevec k v = Vectex (List.map (fun a -> Eval.eval (Mulex (a, k))) v)
+  let scalevec k v = Vectex (List.map (fun a -> Eval.eval (Mulex (k, a))) v)
   let rec dim v = let sum = Intex 0 in match v with
                         [a] -> Eval.eval (Addex (Intex 1, sum))
                         | a::aas -> Eval.eval (Addex ((Eval.eval (Addex (Intex 1, sum))), dim aas))
@@ -102,23 +130,36 @@ end = struct
               else Fltex (a1 /. b1)
           | _ , _ -> Divex(eval a, eval b)
         in ans
-  | Vectex v -> Vectex v
-  | Dotprodex (v1,v2) -> let ans = match v1, v2 with
+  | Vectex v -> let res = match v with
+      Vectex a :: v1 -> let n = VectorOps.dim a in
+        if List.for_all (fun x -> (Eval.eval (Dimex (eval x))) = n) v then Vectex v
+        else failwith "Unequal dimensions in constituent vectors in matrix"
+      | _ -> Vectex v
+      in res
+  | Dotprodex (v1,v2) -> let ans = match eval v1, eval v2 with
       Vectex va, Vectex vb -> VectorOps.dotprod va vb
       | _,_ -> failwith "Invalid type for dotprod"
       in ans
-  | Magex v -> let ans = match v with
+  | Magex v -> let ans = match eval v with
         Vectex v1 -> VectorOps.magnitude v1
         | _ -> failwith "Invalid type for magnitude"
     in ans
-  | Dimex v -> let ans = match v with
+  | Dimex v -> let ans = match eval v with
         Vectex v1 -> VectorOps.dim v1
         | _ -> failwith "Invalid type for dimensions"
     in ans
-  | Anglex (v1, v2) -> let ans = match v1,v2 with
+  | Anglex (v1, v2) -> let ans = match eval v1, eval v2 with
         Vectex va, Vectex vb -> VectorOps.angle va vb
         | _,_ -> failwith "Invalid type for angle"
     in ans
+  | Seqex v -> Seqex (List.map (fun x -> eval x) v)
+  | Cndex (a, b, c) -> let ans = match a with
+    Boolex true -> eval b
+    | Boolex false -> eval c
+    | _ -> failwith "First argument to a conditional must evaluate to a boolean"
+  in ans
+  | Letex (v, e) -> let value = eval e in var_list := !var_list @ [(v, value)]; Letex(v, value);
+  | Varex v -> List.assoc v !var_list
   end
   
 let eval = Eval.eval
