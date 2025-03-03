@@ -1,4 +1,4 @@
-# Language-design-in-OCaml-
+# Language design in OCaml
 
 This contains the following operations:
 Integers and Floats:
