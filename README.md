@@ -22,3 +22,9 @@ T stands for true, and F for false
 - a-b - OR after negation ( = a OR (NOT b) )
 - a*b - AND
 - -a - NOT (executed via subtraction, equivalent to F-a)
+
+Matrices:
+- k*m - scalar multiplication
+- m+n - matrix addition
+- m-n - matrix subtraction
+- |m| - determinant of matrix
