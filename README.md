@@ -10,8 +10,8 @@ Integers and Floats:
 Vectors:
 - v+u - vector addition
 - v-u - vector subtraction
-- k*v - scalar multiplication (scalar comes first)
+- k*v - scalar multiplication (scalar comes first) (vector is not one of booleans)
 - v.u - dot product
-- |v| - magnitude
+- |v| - magnitude (non-boolean vector)
 - dim v - dimensions
-- v^u - angle between vectors
+- v^u - angle between vectors (non-boolean vector)
