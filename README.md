@@ -15,3 +15,10 @@ Vectors:
 - |v| - magnitude (non-boolean vector)
 - dim v - dimensions
 - v^u - angle between vectors (non-boolean vector)
+
+Booleans:
+T stands for true, and F for false
+- a+b - OR
+- a-b - OR after negation ( = a OR (NOT b) )
+- a*b - AND
+- -a - NOT (executed via subtraction, equivalent to F-a)
