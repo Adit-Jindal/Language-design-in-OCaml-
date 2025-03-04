@@ -33,6 +33,7 @@ type token =
   | DOT
   | MOD
   | SEMICOLON
+  | EQUALITY
   | EOL
   | DIM
   | ANGLE
@@ -40,6 +41,7 @@ type token =
   | THEN
   | ELSE
   | ASSIGN
+  | FOR
 
 val main :
   (Lexing.lexbuf  -> token) -> Lexing.lexbuf -> Ast.exp

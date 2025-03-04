@@ -4,6 +4,7 @@ type exp =
 | Boolex of bool
 | Letex of string*exp
 | Varex of string
+| Equex of exp*exp
 | Addex of exp*exp
 | Subex of exp*exp
 | Mulex of exp*exp
@@ -15,11 +16,16 @@ type exp =
 | Anglex of exp*exp
 | Seqex of exp list
 | Cndex of exp*exp*exp
+| Forex of exp*exp*exp*exp
+| Voidex of exp
 
 let var_list : (string*exp) list ref = ref []
 
 module rec VectorOps : sig
   val sumElements : exp list -> exp
+  val minor : exp list -> int -> int -> exp list
+  val determinant : exp list -> exp
+  val fold_cnd : exp -> exp
   val dotprod : exp list -> exp list -> exp
   val magnitude : exp list -> exp
   val addvec : exp list -> exp list -> exp
@@ -51,6 +57,14 @@ end = struct
           Eval.eval (Addex(Eval.eval (Mulex(Eval.eval (Mulex(sign, head)), min_det)), cofactor_exp m (index+1) (Vectex rest)))
         | _ -> failwith "Invalid row syntax"
       in cofactor_exp m 0 (List.hd m)
+  let rec fold_cnd e = let ans = match e with (*Takes in a Seqex of boolean exp and returns a Boolex exp*)
+      Seqex v -> let final = match v with
+        | [b] -> b
+        | b1::b2::b -> fold_cnd (Seqex ((Eval.eval (Mulex(b1,b2)))::b))
+        | _ -> failwith "Folding a sequencing is defined only for non-empty boolean sequences"
+    in final
+    | _ -> failwith "Fold is defined only for seqences"
+  in ans
   let dotprod v1 v2 = List.map2 (fun e1 e2 -> Eval.eval (Mulex (e1, e2))) v1 v2
                       |> sumElements
   let magnitude v = let ans = match v with
@@ -86,6 +100,7 @@ end = struct
   | Intex n -> Intex n
   | Fltex f -> Fltex f
   | Boolex b -> Boolex b
+  | Equex (a,b) -> if ((eval a)=(eval b)) then Boolex true else Boolex false
   | Addex (a,b) -> let ans = match a,b with
       Intex a1, Intex b1 -> Intex (a1+b1)
       | Intex a1, Fltex b1 -> Fltex (float_of_int a1 +. b1)
@@ -134,7 +149,7 @@ end = struct
       Vectex a :: v1 -> let n = VectorOps.dim a in
         if List.for_all (fun x -> (Eval.eval (Dimex (eval x))) = n) v then Vectex v
         else failwith "Unequal dimensions in constituent vectors in matrix"
-      | _ -> Vectex v
+      | _ -> Vectex (List.map (fun x -> eval x) v)
       in res
   | Dotprodex (v1,v2) -> let ans = match eval v1, eval v2 with
       Vectex va, Vectex vb -> VectorOps.dotprod va vb
@@ -153,13 +168,21 @@ end = struct
         | _,_ -> failwith "Invalid type for angle"
     in ans
   | Seqex v -> Seqex (List.map (fun x -> eval x) v)
-  | Cndex (a, b, c) -> let ans = match a with
+  | Cndex (a, b, c) -> let ans = match eval a with
     Boolex true -> eval b
     | Boolex false -> eval c
     | _ -> failwith "First argument to a conditional must evaluate to a boolean"
   in ans
-  | Letex (v, e) -> let value = eval e in var_list := !var_list @ [(v, value)]; Letex(v, value);
+  | Letex (v, e) -> let value = eval e in var_list := (v, value) :: !var_list; Letex(v, value);
   | Varex v -> List.assoc v !var_list
+  | Forex (i,c,u,s) -> let res_i = eval i in
+                                            let next_step = match u,s with
+                                              Seqex u1, Seqex s1 -> s1@u1
+                                              | _ -> failwith "Inconsistent expressions in update or execution statements"
+                                            in
+                                              if ((VectorOps.fold_cnd (eval c))=Boolex true) then eval (Forex (Seqex next_step, c, Seqex [], Seqex next_step))
+                                              else res_i    
+  | Voidex e -> Voidex e
   end
   
 let eval = Eval.eval

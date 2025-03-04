@@ -4,10 +4,10 @@
 %token <string> VAR
 %token PLUS MINUS TIMES DIV
 %token LPAREN RPAREN LBRACES RBRACES
-%token LBKT RBKT COMMA DOT MOD SEMICOLON
+%token LBKT RBKT COMMA DOT MOD SEMICOLON EQUALITY
 %token EOL DIM ANGLE
 %token IF THEN ELSE
-%token ASSIGN
+%token ASSIGN FOR
 %left SEMICOLON
 %left ASSIGN
 %left PLUS MINUS        /* lowest precedence */
@@ -29,6 +29,7 @@ expr:
     | expr MINUS expr         { Ast.eval (Ast.Subex($1, $3)) }
     | expr TIMES expr         { Ast.eval (Ast.Mulex($1, $3)) }
     | expr DOT expr           { Ast.eval (Ast.Dotprodex ($1, $3)) }
+    | expr EQUALITY expr      { (Ast.Equex($1,$3)) }
     | MOD expr MOD            { Ast.eval (Ast.Magex $2) }
     | expr DIV expr           { Ast.eval (Ast.Divex($1, $3)) }
     | MINUS expr %prec UMINUS { Ast.eval (Ast.Subex(Ast.Fltex 0., $2)) }
@@ -39,6 +40,7 @@ expr:
     | LBRACES exprs RBRACES   { Ast.eval (Ast.Seqex $2) }
     | IF expr THEN expr ELSE expr       { Ast.eval (Ast.Cndex($2, $4, $6))}
     | VAR ASSIGN expr         { Ast.eval (Ast.Letex ($1, $3)) }
+    | FOR LPAREN exprs COMMA exprs COMMA exprs RPAREN exprs      { Ast.eval (Ast.Forex(Ast.Seqex $3, Ast.Seqex $5, Ast.Seqex $7, Ast.Seqex $9)) }
 ;
 elements:
     expr                    { [Ast.eval $1] }
