@@ -49,6 +49,15 @@ e.g. `4+3;3+2` is valid, and gives out "7 5 "
 Blocks of commands may be grouped together using braces { }.
 e.g. `{3+4;2/3};33-2;{1/2}` is valid, and outputs "7 0 31 0 ".
 
+### Boolean checkers:
+- a==b - true if a and b are the same expressions, else false
+- a>b - true if a and b are int or float expressions, and a>b
+- a<b - true if a and b are int or float expressions, and a<b
+
+### For loop:
+Syntax is `for("initialisation","conditions","updations")"steps"`
+As of yet, it works for false, but cannot enter the loop for some reason.
+
 ### Conditionals:
 Conditional statements can be passed with the following syntax:
 `if _ then _ else _`
