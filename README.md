@@ -36,6 +36,7 @@ e.g., `VAR:=2+3` has the output "VAR=5".
 All variable names consist of only upper case roman characters.
 Once declared, they can be used to replace any other data type.
 e.g., `A:=3; A+4` evaluates to output "A=3 7"
+In case of multiple assignments to the same variable name, the first definition is retained.
 
 ### Sequencing:
 Multiple expressions can be entered at once, separated by a semicolon ';'.
