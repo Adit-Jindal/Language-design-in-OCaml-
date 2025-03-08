@@ -189,7 +189,7 @@ end = struct
                                               Seqex u1, Seqex s1 -> s1@u1
                                               | _, _ -> failwith "Inconsistent expressions in update or execution statements"
                                             in
-                                              if ((VectorOps.fold_cnd (eval c))=Boolex true) then eval (Forex (Seqex next_step, c, Seqex [], Seqex next_step))
+                                              if ((VectorOps.fold_cnd (eval (eval c)))=Boolex true) then eval (Forex (Seqex next_step, c, Seqex next_step, Seqex []))
                                               else res_i
   | Foldex e -> e
   end

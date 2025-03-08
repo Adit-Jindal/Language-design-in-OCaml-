@@ -44,6 +44,7 @@ type token =
   | ELSE
   | ASSIGN
   | FOR
+  | WHILE
 
 val main :
   (Lexing.lexbuf  -> token) -> Lexing.lexbuf -> Ast.exp

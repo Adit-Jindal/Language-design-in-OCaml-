@@ -7,7 +7,7 @@
 %token LBKT RBKT COMMA DOT MOD SEMICOLON EQUALITY LESS MORE
 %token EOL DIM ANGLE
 %token IF THEN ELSE
-%token ASSIGN FOR
+%token ASSIGN FOR WHILE
 
 %left LPAREN RPAREN
 %left IF THEN ELSE
@@ -48,6 +48,7 @@ expr:
     | IF expr THEN expr ELSE expr       { Ast.eval (Ast.Cndex($2, $4, $6))}
     | VAR ASSIGN expr         { Ast.eval (Ast.Letex ($1, $3)) }
     | FOR LPAREN expr COMMA cmd COMMA cmd RPAREN cmd      { Ast.eval (Ast.Forex($3, $5, $7, $9)) } //All will be Seqex 
+    | WHILE LPAREN cmd RPAREN cmd                         { Ast.eval (Ast.Forex($3, $3, $5, Ast.Seqex [])) } //All will be Seqex
 ;
 elements:
     expr                    { [Ast.eval $1] }
@@ -79,7 +80,8 @@ cmd:
     | LBRACES cmds RBRACES             { (Ast.Seqex $2)}
     | IF cmd THEN cmd ELSE cmd       { (Ast.Cndex($2, $4, $6))}
     | VAR ASSIGN cmd         { (Ast.Letex ($1, $3)) }
-    | FOR LPAREN expr COMMA cmd COMMA cmd RPAREN cmd      { Ast.eval (Ast.Forex($3, $5, $7, $9)) } //All will be Seqex
+    | FOR LPAREN expr COMMA cmd COMMA cmd RPAREN cmd      { (Ast.Forex($3, $5, $7, $9)) } //All will be Seqex
+    | WHILE LPAREN cmd RPAREN cmd                         { (Ast.Forex($3, $3, $5, Ast.Seqex [])) } //All will be Seqex
 ;
 cmdelements:
     cmd                       { [$1] }
