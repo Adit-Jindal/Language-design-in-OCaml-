@@ -34,6 +34,8 @@ type token =
   | MOD
   | SEMICOLON
   | EQUALITY
+  | LESS
+  | MORE
   | EOL
   | DIM
   | ANGLE
