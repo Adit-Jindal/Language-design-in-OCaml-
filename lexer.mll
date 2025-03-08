@@ -33,9 +33,14 @@ rule token = parse
     | ['e']['l']['s']['e']              { ELSE }
     | [':']['=']                        { ASSIGN }
     | ['f']['o']['r']                   { FOR }
+    | "///"                             { comment lexbuf }
 
     (* | ['w']['h']['i']['l']['e']         { WHILE } *)
     | '<'                               { LESS }
     | '>'                               { MORE }
     (* | ['$']                             { COMMENT } *)
     | eof                               { raise Eof }
+
+and comment = parse
+    "///"                             { token lexbuf }
+    | _                                 { comment lexbuf }
