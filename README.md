@@ -71,6 +71,11 @@ Syntax is `for("initialisation","conditions","updations")"steps"`
 
 All parts in the syntax must be Sequence expressions, i.e., enclosed in braces, even if it contains a single expression inside it.
 
+### Comments:
+Anything enclosed between `///` and `///` is ignored by the lexer and thus can be used as a comment. This can be used in between expressions as well.
+
+e.g. `3+3 ///this is a comment.///` is the same as `3+3` and `3+///this is also a comment///3`, all evaluating to `6`.
+
 ### Conditionals:
 Conditional statements can be passed with the following syntax:
 `if _ then _ else _`
