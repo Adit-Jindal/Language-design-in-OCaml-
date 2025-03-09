@@ -34,6 +34,8 @@ t stands for true, and f for false
 - m+n - matrix addition
 - m-n - matrix subtraction
 - |m| - determinant of matrix
+- m*n - matrix multiplication
+- \_m\_ - transpose
 ### Variables
 Variables need to be assigned using ":=".
 Assignment commands print output presenting the evaluated expression.
@@ -70,18 +72,6 @@ Matrices > Vectors > Int=Float > true > false
 Syntax is `for("initialisation","conditions","updations")"steps"`
 
 All parts in the syntax must be Sequence expressions, i.e., enclosed in braces, even if it contains a single expression inside it.
-
-### While loop:
-Syntax is `while("conditions")"steps"`
-
-All parts must be Sequence expressions, i.e., enclosed in braces, even if it contains a single expression inside it.
-
-If while loop is executed even once, it evaluates to the seqeunce expression of the `steps` executed in the last iteration. If it is never executed (condition is false even the first time), then the while loop evaluates to a sequence expression containing the singlular element false.
-
-### Comments:
-Anything enclosed between `///` and `///` is ignored by the lexer and thus can be used as a comment. This can be used in between expressions as well.
-
-e.g. `3+3 ///this is a comment.///` is the same as `3+3` and `3+///this is also a comment///3`, all evaluating to `6`.
 
 ### Conditionals:
 Conditional statements can be passed with the following syntax:

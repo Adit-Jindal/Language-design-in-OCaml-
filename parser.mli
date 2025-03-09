@@ -27,6 +27,7 @@ type token =
   | RPAREN
   | LBRACES
   | RBRACES
+  | UNDSC
   | LBKT
   | RBKT
   | COMMA

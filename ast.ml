@@ -19,12 +19,14 @@ type exp =
 | Seqex of exp list
 | Cndex of exp*exp*exp
 | Forex of exp*exp*exp*exp
-| Foldex of exp
+| Transex of exp
 
 let var_list : (string*exp) list ref = ref []
 
 module rec VectorOps : sig
   val sumElements : exp list -> exp
+  val filterRows : exp list -> int -> exp list
+  val transpose : exp list ->  int -> exp list
   val minor : exp list -> int -> int -> exp list
   val determinant : exp list -> exp
   val fold_cnd : exp -> exp
@@ -33,6 +35,10 @@ module rec VectorOps : sig
   val addvec : exp list -> exp list -> exp
   val scalevec : exp -> exp list -> exp
   val dim : exp list -> exp
+  val isMatrix : exp list -> exp
+  val multrow : exp list -> exp list -> exp
+  val multvecmat : exp list -> exp list -> exp list
+  val multmat : exp list -> exp list -> exp list
   val angle : exp list -> exp list -> exp
 end = struct
   let rec sumElements v = let ans = match v with
@@ -40,6 +46,17 @@ end = struct
     | a :: b :: c -> sumElements (Eval.eval (Addex(a,b)) :: c)
     | [] -> failwith "Empty vector"
     in ans
+  let rec filterRows m j = match m with
+    | (Vectex x)::xs -> (List.filteri (fun id _ -> id==j) x) @ (filterRows xs j)
+    | [] -> []
+    | _ -> failwith "Invalid type for transpose (filterRows)"
+  let rec transpose m j = (* This gives back exp list, and needs to be used as parameter for Vectex; does not give final expression *)
+    let max_cols = match (List.hd m) with
+    | Vectex v -> VectorOps.dim v
+    | _ -> failwith "invalid type for matrix" in
+    if (Intex j)<max_cols then
+      let row = (filterRows m j) in ((Vectex row) :: (transpose m (j+1)))
+    else []
   let minor matrix i j = (* RETURNS A LIST OF LISTS, AND NOT AN EXP, UNLIKE ALL OTEHR FUNCTIONS*)
     let rec remove_row m i = match m with
       [] -> []
@@ -66,7 +83,7 @@ end = struct
       | _ -> failwith "Folding a sequencing is defined only for non-empty boolean sequences"
       in final
     | _ -> failwith "Fold is defined only for seqences"
-  in ans
+    in ans
   let dotprod v1 v2 = List.map2 (fun e1 e2 -> Eval.eval (Mulex (e1, e2))) v1 v2
                       |> sumElements
   let magnitude v = let ans = match v with
@@ -87,6 +104,25 @@ end = struct
                         [a] -> Eval.eval (Addex (Intex 1, sum))
                         | a::aas -> Eval.eval (Addex ((Eval.eval (Addex (Intex 1, sum))), dim aas))
                         | _ -> failwith "Invalid vector for dimensions"
+  let isMatrix v = let res = match v with
+    Vectex a :: v1 -> let n = VectorOps.dim a in
+      if List.for_all (fun x -> (Eval.eval (Dimex x)) = n) v then Boolex true
+      else Boolex false
+    | _ -> Boolex false
+    in res
+  let multrow a b = VectorOps.sumElements (List.map2 (fun x y -> (Eval.eval (Mulex(x,y)))) a b)
+  let rec multvecmat v m =
+    let ans = match m with
+    (Vectex x) :: xs -> (VectorOps.multrow v x) :: (multvecmat v xs)
+    | [] -> []
+    | _ -> failwith "Needs to be a matrix"
+    in ans
+  let rec multmat n m =                 (* Gives exp list, output needs to be used as parameter to Vectex *) (*m is used as paramter after transposition*)
+    let ans = match n with
+    (Vectex x)::xs -> (Vectex (multvecmat x m)) :: (multmat xs m)
+    | [] -> []
+    | _ -> failwith "Needs to be a matrix for matrix multiplication"
+    in ans
   let angle v1 v2 = let mag1= magnitude v1 in let mag2= magnitude v2 in
                         if (mag1=Fltex 0. || mag2=Fltex 0.) then failwith "Angle is not defined for zero vectors"
                         else let projection = dotprod v1 v2 in match projection with
@@ -134,7 +170,11 @@ end = struct
       | Fltex k, Vectex v -> VectorOps.scalevec a v
       | Vectex v, Intex k -> VectorOps.scalevec b v
       | Vectex v, Fltex k -> VectorOps.scalevec b v
-      | _ , _ -> Mulex(eval a, eval b)
+      | Vectex v1, Vectex v2 -> if (VectorOps.isMatrix v1 = Boolex true) && (VectorOps.isMatrix v2 = Boolex true) then
+        if (VectorOps.dim v2)=(eval (Dimex (List.hd v1))) then
+        Vectex (VectorOps.multmat v1 (VectorOps.transpose v2 0)) else failwith "Incorrect dimensions for matrix multiplication"
+        else failwith "Vector multiplication is defined only for matrices. For dot product, use '.' operator"
+              | _ , _ -> Mulex(eval a, eval b)
       in ans
   | Divex (a,b) -> let ans = match eval a, eval b with
       Intex a1, Intex b1 -> if b1=0 then
@@ -158,7 +198,7 @@ end = struct
       | _ -> Vectex (List.map (fun x -> eval x) v)
       in res
   | Dotprodex (v1,v2) -> let ans = match eval v1, eval v2 with
-      Vectex va, Vectex vb -> VectorOps.dotprod va vb
+      Vectex va, Vectex vb -> if (VectorOps.dim va = VectorOps.dim vb) then (VectorOps.dotprod va vb) else failwith "Unequal dimensions in dot product"
       | _,_ -> failwith "Invalid type for dotprod"
       in ans
   | Magex v -> let ans = match eval v with
@@ -191,7 +231,11 @@ end = struct
                                             in
                                               if ((VectorOps.fold_cnd (eval (eval c)))=Boolex true) then eval (Forex (Seqex next_step, c, Seqex next_step, Seqex []))
                                               else res_i
-  | Foldex e -> e
+  | Transex e -> let ans = match e with
+    Vectex v -> if ((VectorOps.isMatrix v)=Boolex true) then Vectex (VectorOps.transpose v 0)
+                else failwith "Invalid input for matrix"
+    | _ -> failwith "Transpose is defined only for matrices; given input is not a vector."
+    in ans
   end
   
 let eval = Eval.eval

@@ -3,12 +3,13 @@
 %token <bool> BOOL
 %token <string> VAR
 %token PLUS MINUS TIMES DIV
-%token LPAREN RPAREN LBRACES RBRACES
+%token LPAREN RPAREN LBRACES RBRACES UNDSC
 %token LBKT RBKT COMMA DOT MOD SEMICOLON EQUALITY LESS MORE
 %token EOL DIM ANGLE
 %token IF THEN ELSE
 %token ASSIGN FOR WHILE
 
+%left UNDSC
 %left LPAREN RPAREN
 %left IF THEN ELSE
 %left SEMICOLON
@@ -49,6 +50,7 @@ expr:
     | VAR ASSIGN expr         { Ast.eval (Ast.Letex ($1, $3)) }
     | FOR LPAREN expr COMMA cmd COMMA cmd RPAREN cmd      { Ast.eval (Ast.Forex($3, $5, $7, $9)) } //All will be Seqex 
     | WHILE LPAREN cmd RPAREN cmd                         { Ast.eval (Ast.Forex($3, $3, $5, Ast.Seqex [])) } //All will be Seqex
+    | UNDSC expr UNDSC        { Ast.eval (Ast.Transex $2) }
 ;
 elements:
     expr                    { [Ast.eval $1] }

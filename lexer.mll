@@ -37,6 +37,7 @@ rule token = parse
     | ['w']['h']['i']['l']['e']         { WHILE }
     | '<'                               { LESS }
     | '>'                               { MORE }
+    | '_'                               { UNDSC }
     | eof                               { raise Eof }
 
 and comment = parse
