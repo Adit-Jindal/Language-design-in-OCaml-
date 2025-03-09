@@ -36,6 +36,7 @@ t stands for true, and f for false
 - |m| - determinant of matrix
 - m*n - matrix multiplication
 - \_m\_ - transpose
+- m' - inverse
 ### Variables
 Variables need to be assigned using ":=".
 Assignment commands print output presenting the evaluated expression.

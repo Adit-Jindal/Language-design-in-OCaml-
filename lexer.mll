@@ -38,6 +38,7 @@ rule token = parse
     | '<'                               { LESS }
     | '>'                               { MORE }
     | '_'                               { UNDSC }
+    | '\''                               { PRIME }
     | eof                               { raise Eof }
 
 and comment = parse

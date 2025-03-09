@@ -40,6 +40,7 @@ type token =
   | EOL
   | DIM
   | ANGLE
+  | PRIME
   | IF
   | THEN
   | ELSE

@@ -5,7 +5,7 @@
 %token PLUS MINUS TIMES DIV
 %token LPAREN RPAREN LBRACES RBRACES UNDSC
 %token LBKT RBKT COMMA DOT MOD SEMICOLON EQUALITY LESS MORE
-%token EOL DIM ANGLE
+%token EOL DIM ANGLE PRIME
 %token IF THEN ELSE
 %token ASSIGN FOR WHILE
 
@@ -17,6 +17,7 @@
 %left DIM
 %left EQUALITY LESS MORE
 %left DOT ANGLE
+%left PRIME
 %left PLUS MINUS        /* lowest precedence */
 %left TIMES DIV         /* medium precedence */
 %nonassoc UMINUS        /* highest precedence */
@@ -51,6 +52,7 @@ expr:
     | FOR LPAREN expr COMMA cmd COMMA cmd RPAREN cmd      { Ast.eval (Ast.Forex($3, $5, $7, $9)) } //All will be Seqex 
     | WHILE LPAREN cmd RPAREN cmd                         { Ast.eval (Ast.Forex($3, $3, $5, Ast.Seqex [])) } //All will be Seqex
     | UNDSC expr UNDSC        { Ast.eval (Ast.Transex $2) }
+    | expr PRIME              { Ast.eval (Ast.Invex $1) }
 ;
 elements:
     expr                    { [Ast.eval $1] }

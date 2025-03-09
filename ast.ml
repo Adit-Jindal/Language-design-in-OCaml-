@@ -20,6 +20,7 @@ type exp =
 | Cndex of exp*exp*exp
 | Forex of exp*exp*exp*exp
 | Transex of exp
+| Invex of exp
 
 let var_list : (string*exp) list ref = ref []
 
@@ -29,6 +30,8 @@ module rec VectorOps : sig
   val transpose : exp list ->  int -> exp list
   val minor : exp list -> int -> int -> exp list
   val determinant : exp list -> exp
+  val cof_row : exp list -> int -> int -> int -> exp list
+  val cof_mat : exp list -> int -> int -> int -> exp list
   val fold_cnd : exp -> exp
   val dotprod : exp list -> exp list -> exp
   val magnitude : exp list -> exp
@@ -76,6 +79,10 @@ end = struct
           Eval.eval (Addex(Eval.eval (Mulex(Eval.eval (Mulex(sign, head)), min_det)), cofactor_exp m (index+1) (Vectex rest)))
         | _ -> failwith "Invalid row syntax"
       in cofactor_exp m 0 (List.hd m)
+  let rec cof_row m c i j = let sign = if (i+j) mod 2 = 0 then Intex 1 else Intex (-1) in
+    if j<c then (Eval.eval (Mulex (sign, (VectorOps.determinant (VectorOps.minor m i j))))) :: (cof_row m c i (j+1)) else []
+  let rec cof_mat m r c i=
+    if i<r then (Vectex (VectorOps.cof_row m c i 0) :: (cof_mat m r c (i+1))) else []
   let rec fold_cnd e = let ans = match e with (*Takes in a Seqex of boolean exp and returns a Boolex exp*)
     Seqex v -> let final = match v with
       | [b] -> Eval.eval b
@@ -235,6 +242,16 @@ end = struct
     Vectex v -> if ((VectorOps.isMatrix v)=Boolex true) then Vectex (VectorOps.transpose v 0)
                 else failwith "Invalid input for matrix"
     | _ -> failwith "Transpose is defined only for matrices; given input is not a vector."
+    in ans
+  | Invex e -> let ans = match e with
+    Vectex v -> if ((VectorOps.isMatrix v)=Boolex false) then failwith "Expected a matrix, but given input is 1-D vector"
+        else let det = eval (Magex e) in let res = match (VectorOps.dim v),(eval (Dimex (List.hd v))) with
+                                            Intex rows, Intex cols ->
+                                              if (det = Intex 0) || (det = Fltex 0.0) then failwith "Matrix is singular"
+                                              else let cof = Vectex (VectorOps.transpose (VectorOps.cof_mat v rows cols 0) 0) in eval (Mulex (cof, Divex (Fltex 1., det)))
+                                            | _,_ -> failwith "Incorrect dimensions of matrix"
+                                            in res
+    | _ -> failwith "Expected a matrix for inversion"
     in ans
   end
   
