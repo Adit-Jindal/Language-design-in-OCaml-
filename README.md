@@ -79,3 +79,10 @@ Conditional statements can be passed with the following syntax:
 `if _ then _ else _`
 
 e.g., in `if a then b else c`, if a evaluates to true, then b is executed, else c is carried out.
+
+
+## Instructions to run
+
+1. Download the file named `tester`.
+2. Open a terminal at the directory containing `tester`.
+3. Run the following command `ocamlrun tester`.
