@@ -5,10 +5,12 @@
 %token PLUS MINUS TIMES DIV
 %token LPAREN RPAREN LBRACES RBRACES UNDSC
 %token LBKT RBKT COMMA DOT MOD SEMICOLON EQUALITY LESS MORE
-%token EOL DIM ANGLE PRIME
+%token EOL DIM ANGLE PRIME PRINT
 %token IF THEN ELSE
 %token ASSIGN FOR WHILE
+%token <string> INPUT
 
+%left PRINT
 %left UNDSC
 %left LPAREN RPAREN
 %left IF THEN ELSE
@@ -46,13 +48,18 @@ expr:
     | expr ANGLE expr         { Ast.eval (Ast.Anglex($1,$3)) }
     | DIM expr                { Ast.eval (Ast.Dimex $2) }
     | LBKT elements RBKT      { Ast.eval (Ast.Vectex $2) }
+    | LBKT expr SEMICOLON expr RBKT     { Ast.eval (Ast.Emptex ($2, $4)) }
     | LBRACES exprs RBRACES             { Ast.eval (Ast.Seqex $2)}
     | IF expr THEN expr ELSE expr       { Ast.eval (Ast.Cndex($2, $4, $6))}
     | VAR ASSIGN expr         { Ast.eval (Ast.Letex ($1, $3)) }
+    | expr LPAREN expr COMMA expr RPAREN ASSIGN expr      { Ast.eval (Ast.AdMtex($1, $3, $5, $8)) }
+    | expr LESS LESS expr COMMA expr MORE MORE    { Ast.eval (Ast.MtMinex ($1, $4, $6))}
     | FOR LPAREN expr COMMA cmd COMMA cmd RPAREN cmd      { Ast.eval (Ast.Forex($3, $5, $7, $9)) } //All will be Seqex 
     | WHILE LPAREN cmd RPAREN cmd                         { Ast.eval (Ast.Forex($3, $3, $5, Ast.Seqex [])) } //All will be Seqex
     | UNDSC expr UNDSC        { Ast.eval (Ast.Transex $2) }
     | expr PRIME              { Ast.eval (Ast.Invex $1) }
+    | PRINT LPAREN expr RPAREN      { Ast.eval (Ast.Printex $3) }
+    | INPUT                         { Ast.eval (Ast.Inputex $1) }
 ;
 elements:
     expr                    { [Ast.eval $1] }
@@ -81,11 +88,16 @@ cmd:
     | cmd ANGLE cmd          { (Ast.Anglex($1,$3)) }
     | DIM cmd                { (Ast.Dimex $2) }
     | LBKT cmdelements RBKT      { (Ast.Vectex $2) }
-    | LBRACES cmds RBRACES             { (Ast.Seqex $2)}
-    | IF cmd THEN cmd ELSE cmd       { (Ast.Cndex($2, $4, $6))}
+    | LBKT cmd SEMICOLON cmd RBKT      { (Ast.Emptex ($2, $4)) }
+    | LBRACES cmds RBRACES             { (Ast.Seqex $2) }
+    | IF cmd THEN cmd ELSE cmd         { (Ast.Cndex($2, $4, $6))}
     | VAR ASSIGN cmd         { (Ast.Letex ($1, $3)) }
+    | cmd LPAREN cmd COMMA cmd RPAREN ASSIGN cmd     { (Ast.AdMtex($1, $3, $5, $8))}
+    | cmd LESS LESS cmd COMMA cmd MORE MORE    { (Ast.MtMinex ($1, $4, $6))}
     | FOR LPAREN expr COMMA cmd COMMA cmd RPAREN cmd      { (Ast.Forex($3, $5, $7, $9)) } //All will be Seqex
     | WHILE LPAREN cmd RPAREN cmd                         { (Ast.Forex($3, $3, $5, Ast.Seqex [])) } //All will be Seqex
+    | UNDSC cmd UNDSC        { (Ast.Transex $2) }
+    | cmd PRIME              { (Ast.Invex $1) }
 ;
 cmdelements:
     cmd                       { [$1] }

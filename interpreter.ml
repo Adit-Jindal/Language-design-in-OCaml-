@@ -24,15 +24,19 @@ Ast.Intex n -> print_int n
 | Ast.Morex (v,w) -> print_string "("; print_exp v; print_string " > "; print_exp w; print_string ")";
 | Ast.Transex v -> print_string "transpose of "; print_exp v;
 | Ast.Invex v -> print_string "inverse of "; print_exp v;
-(* | _ -> failwith "Not a valid result type" *)
+| _ -> failwith "Not a valid result type"
 ;;
+
+let print_command = function
+Ast.Printex v -> print_exp v; Printf.printf "\n";
+| _ -> ()
 
 let main() =
   try
     let lexbuf = Lexing.from_channel stdin in
     while true do
       let result = Parser.main Lexer.token lexbuf in
-        print_exp result; Printf.printf "\n"; flush stdout
+        print_command result; flush stdout
     done
   with Lexer.Eof ->
     exit 0

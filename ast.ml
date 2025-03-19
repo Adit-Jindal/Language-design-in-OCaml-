@@ -21,11 +21,21 @@ type exp =
 | Forex of exp*exp*exp*exp
 | Transex of exp
 | Invex of exp
+| AdMtex of exp*exp*exp*exp
+| MtMinex of exp*exp*exp
+| Emptex of exp*exp
+| Printex of exp
+| Inputex of string
 
 let var_list : (string*exp) list ref = ref []
 
 module rec VectorOps : sig
   val sumElements : exp list -> exp
+  val mergevec : exp -> exp -> exp
+  val emptyvec : int -> exp
+  val unitvec : int -> int -> exp
+  val emptymat : int -> int -> exp list
+  val unitmat : int -> int -> int -> int -> exp
   val filterRows : exp list -> int -> exp list
   val transpose : exp list ->  int -> exp list
   val minor : exp list -> int -> int -> exp list
@@ -49,6 +59,16 @@ end = struct
     | a :: b :: c -> sumElements (Eval.eval (Addex(a,b)) :: c)
     | [] -> failwith "Empty vector"
     in ans
+  let mergevec v1 v2 = let res = match v1, v2 with
+    Vectex a, Vectex b -> Vectex (a@b)
+    | _ -> failwith "Invalid type for mergevec"
+    in res
+  let rec emptyvec m = if (m>0) then mergevec (Vectex [Intex 0]) (emptyvec (m-1)) else (Vectex [])
+  let unitvec m j = (*creates a vector of size m, with 1 at the jth index*)
+    mergevec (emptyvec (j)) (mergevec (Vectex [Intex 1]) (emptyvec (m-j-1)))
+  let rec emptymat m n = if (m>0) then ((emptyvec n)::(emptymat (m-1) n)) else ([])
+  let unitmat m n i j = 
+    mergevec (Vectex (emptymat i n)) (mergevec (Vectex [unitvec n j]) (Vectex (emptymat (m-i-1) n)))
   let rec filterRows m j = match m with
     | (Vectex x)::xs -> (List.filteri (fun id _ -> id==j) x) @ (filterRows xs j)
     | [] -> []
@@ -220,6 +240,10 @@ end = struct
     in ans
   | Anglex (v1, v2) -> let ans = match eval v1, eval v2 with
         Vectex va, Vectex vb -> VectorOps.angle va vb
+        | Intex va, Intex 0 -> Intex 1
+        | Intex va, Intex vb -> eval (Mulex (Intex va, (eval (Anglex (Intex va, Intex (vb-1))))))
+        | Fltex va, Intex 0 -> Fltex 1.
+        | Fltex va, Intex vb -> eval (Mulex (Fltex va, (eval (Anglex (Fltex va, Intex (vb-1))))))
         | _,_ -> failwith "Invalid type for angle"
     in ans
   | Seqex v -> Seqex (List.map (fun x -> eval x) v)
@@ -253,6 +277,26 @@ end = struct
                                             in res
     | _ -> failwith "Expected a matrix for inversion"
     in ans
+  | AdMtex (aa, ii, jj, v) -> let ans = match (eval aa), (eval ii), (eval jj) with
+    | Vectex a, Intex i, Intex j -> let rows = VectorOps.dim a in let cols = (eval (Dimex (List.hd a))) in if (Intex i<rows && Intex j<cols)
+        then (match rows, cols, eval (eval v) with
+                | Intex r, Intex c, Intex vv -> let indivmat = eval (Mulex (v, (VectorOps.unitmat r c i j))) in (eval (Addex (indivmat, aa)))
+                | Intex r, Intex c, Fltex vv -> let indivmat = eval (Mulex (v, (VectorOps.unitmat r c i j))) in (eval (Addex (indivmat, aa)))
+                | _,_,_ -> failwith "Incorrect matrix dimensions")
+        else failwith "Index out of bounds"
+    | _,_,_ -> failwith "Invalid input for matrix values manipulation"
+    in ans
+  | MtMinex (vv, ii, jj) -> let ans = match (eval vv), (eval ii), (eval jj) with
+    | Vectex v, Intex i, Intex j -> Vectex (VectorOps.minor v i j)
+    | _,_,_ -> failwith "Invalid input for minor of matrix"
+    in ans
+  | Emptex (r, c) -> let ans = match eval r, eval c with
+    | Intex rows, Intex 0 -> VectorOps.emptyvec rows
+    | Intex rows, Intex cols -> Vectex (VectorOps.emptymat rows cols)
+    | _,_ -> failwith "Invalid input for empty matrix"
+    in ans
+  | Printex e -> Printex( eval (eval e) )
+  | Inputex s -> Intex 0 (* THIS WILL EVENTUALLY BE USED FOR READING INPUT FROM A FILE OR TERMINAL. DUMMY FOR NOW *)
   end
   
 let eval = Eval.eval

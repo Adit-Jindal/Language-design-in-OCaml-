@@ -35,10 +35,12 @@ rule token = parse
     | ['f']['o']['r']                   { FOR }
     | "///"                             { comment lexbuf }
     | ['w']['h']['i']['l']['e']         { WHILE }
+    | ['p']['r']['i']['n']['t']         { PRINT }
     | '<'                               { LESS }
     | '>'                               { MORE }
     | '_'                               { UNDSC }
-    | '\''                               { PRIME }
+    | '\''                              { PRIME }
+    | "input(" ([^')']*) ")" as lxm     { INPUT (String.sub lxm 6 ((String.length lxm) - 7)) }
     | eof                               { raise Eof }
 
 and comment = parse

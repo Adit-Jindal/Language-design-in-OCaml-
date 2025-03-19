@@ -7,6 +7,7 @@ This contains the following operations:
 - a*b - Multiplication
 - a/b - Division
 - a==b - Equality comparator
+- a^b - exponent (a raised to the bth power) - b should be integral
 - a&lt;b - Checks if a is less than b
 - a&gt;b - Checks if a is greater than b
 ### Vectors:
@@ -21,6 +22,7 @@ This contains the following operations:
 - v==u - Equality comparator
 - v&lt;u - Compares v and u lexicographically. Thus, v and u can be int, float, boolean, vector, or matrix.
 - v&gt;u - Compares v and u lexicographically. Thus, v and u can be int, float, boolean, vector, or matrix.
+- [i;0] - Creates a vector of dimension i, containing all zeroes, and returns an expression (Vectex)
 
 Vectors having elements of different data types are permitted, and can work for certain operations.
 ### Booleans:
@@ -37,14 +39,17 @@ t stands for true, and f for false
 - m*n - matrix multiplication
 - \_m\_ - transpose
 - m' - inverse
+- m(i,j):=x - adding x to the element at m[i][j] (can be used to set a value)
+- m&lt;&lt;i,j>> - Returns the minor of a matrix
+- [i;j] - creates a matrix of i rows and j cols, containing all zeroes, and returns as an expression (Vectex)
 ### Variables
 Variables need to be assigned using ":=".
 Assignment commands print output presenting the evaluated expression.
-e.g., `VAR:=2+3` has the output "VAR=5".
+e.g., `VAR:=2+3` initialises a variable named `VAR` to 5.
 
 All variable names consist of only upper case Latin characters.
 Once declared, they can be used to replace any other data type.
-e.g., `{A:=3; A+4}` evaluates to output "A=3 7"
+e.g., `{A:=3; A+4}` evaluates to `Seqex [A:=3; 7]`.
 
 In case of multiple assignments to the same variable name, the latest definition is updated and used.
 ### Sequencing:
@@ -53,11 +58,11 @@ Multiple expressions can be entered at once, separated by a semicolon ';', and e
 Outputs to such expressions are printed in a line, separated by spaces.
 
 The last argument must not be followed by a semicolon.
-e.g. `{4+3;3+2}` is valid, and gives out "7 5 "
+e.g. `{4+3;3+2}` is valid, and gives `Seqex [7;5]`
      `{4+3;3+2;}` is not valid.
      
 Blocks of commands may be grouped together using braces { }.
-e.g. `{{3+4;2/3};33-2;{1/2}}` is valid, and outputs "7 0 31 0 ".
+e.g. `{{3+4;2/3};33-2;{1/2}}` is valid, and gives `Seqex [Seqex [7;0]; 31; Seqex [0]]`.
 
 ### Boolean checkers:
 - a==b - true if a and b are the same expressions, else false
@@ -79,6 +84,15 @@ Conditional statements can be passed with the following syntax:
 `if _ then _ else _`
 
 e.g., in `if a then b else c`, if a evaluates to true, then b is executed, else c is carried out.
+
+### Input and Output
+Source of input can be specified as either an external filename or the terminal. This functionality is yet to be added.
+
+Output is printed in the terminal using `print(_)`, where the quantity to be printed is placed at the underscore.
+e.g., for a variable A set to 3, `print(A)` prints `3` in the terminal.
+`print(3+2)` prints 5 on the terminal.
+
+print expressions can not be a part of a sequence expression.
 
 
 ## Instructions to run

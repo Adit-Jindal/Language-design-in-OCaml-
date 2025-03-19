@@ -41,12 +41,18 @@ type token =
   | DIM
   | ANGLE
   | PRIME
+  | PRINT
   | IF
   | THEN
   | ELSE
   | ASSIGN
   | FOR
   | WHILE
+  | INPUT of (
+# 11 "parser.mly"
+        string
+# 55 "parser.mli"
+)
 
 val main :
   (Lexing.lexbuf  -> token) -> Lexing.lexbuf -> Ast.exp
