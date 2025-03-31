@@ -30,6 +30,7 @@ Ast.Intex n -> print_int n
 
 let print_command = function
 Ast.Printex v -> print_exp v; Printf.printf "\n";
+| Ast.Quitex -> exit 0;
 | _ -> ()
 
 (* let main() =

@@ -5,7 +5,7 @@
 %token PLUS MINUS TIMES DIV
 %token LPAREN RPAREN LBRACES RBRACES UNDSC
 %token LBKT RBKT COMMA DOT MOD SEMICOLON EQUALITY LESS MORE
-%token EOL DIM ANGLE PRIME PRINT
+%token EOL DIM ANGLE PRIME PRINT QUIT
 %token IF THEN ELSE
 %token ASSIGN FOR WHILE
 %token <string> INPUT
@@ -60,6 +60,7 @@ expr:
     | expr PRIME              { Ast.eval (Ast.Invex $1) }
     | PRINT LPAREN expr RPAREN      { Ast.eval (Ast.Printex $3) }
     | INPUT                         { Ast.eval (Ast.Inputex $1) }
+    | QUIT                          { Ast.Quitex }
 ;
 elements:
     expr                    { [Ast.eval $1] }

@@ -41,6 +41,7 @@ rule token = parse
     | '_'                               { UNDSC }
     | '\''                              { PRIME }
     | "input(" ([^')']*) ")" as lxm     { INPUT (String.sub lxm 6 ((String.length lxm) - 7)) }
+    | 'q'                               { QUIT }
     | eof                               { raise Eof }
 
 and comment = parse

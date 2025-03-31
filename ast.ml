@@ -26,6 +26,7 @@ type exp =
 | Emptex of exp*exp
 | Printex of exp
 | Inputex of string
+| Quitex
 
 let var_list : (string*exp) list ref = ref []
 
@@ -296,7 +297,8 @@ end = struct
     | _,_ -> failwith "Invalid input for empty matrix"
     in ans
   | Printex e -> Printex( eval (eval e) )
-  | Inputex s -> Inputex s (* THIS WILL EVENTUALLY BE USED FOR READING INPUT FROM A FILE OR TERMINAL. DUMMY FOR NOW *)
+  | Inputex s -> Inputex s
+  | Quitex -> Quitex
   end
   
 let eval = Eval.eval

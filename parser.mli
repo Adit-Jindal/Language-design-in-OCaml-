@@ -42,6 +42,7 @@ type token =
   | ANGLE
   | PRIME
   | PRINT
+  | QUIT
   | IF
   | THEN
   | ELSE
@@ -51,7 +52,7 @@ type token =
   | INPUT of (
 # 11 "parser.mly"
         string
-# 55 "parser.mli"
+# 56 "parser.mli"
 )
 
 val main :

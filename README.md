@@ -93,13 +93,20 @@ This can be used to make the code more explanatory.
 These comments can be used both inline and as comment blocks.
 
 ### Input and Output
-Source of input can be specified as either an external filename or the terminal. This functionality is yet to be added.
+The first line of the program must specify the source (channel) of input. Source of input can be specified as either an external filename or the terminal. This has 2 ways.
+- input() -> This continues taking in input from the terminal
+- input(file) -> This opens the file named 'file' and reads and executes commands from it line-by-line. 
+*The text file used in this must end in an empty line, i.e., the last typed character must be `\n`.*
 
 Output is printed in the terminal using `print(_)`, where the quantity to be printed is placed at the underscore.
 e.g., for a variable A set to 3, `print(A)` prints `3` in the terminal.
 `print(3+2)` prints 5 on the terminal.
 
 print expressions can not be a part of a sequence expression.
+
+### Quit
+Entering `q` as input calls the `Quitex` expression, closes the program (exits).
+This can be used in both the terminal and the text file channels of input.
 
 
 ## Instructions to run
