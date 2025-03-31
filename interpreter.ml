@@ -24,6 +24,7 @@ Ast.Intex n -> print_int n
 | Ast.Morex (v,w) -> print_string "("; print_exp v; print_string " > "; print_exp w; print_string ")";
 | Ast.Transex v -> print_string "transpose of "; print_exp v;
 | Ast.Invex v -> print_string "inverse of "; print_exp v;
+| Ast.Printex v -> print_exp v;
 | _ -> failwith "Not a valid result type"
 ;;
 
@@ -44,15 +45,22 @@ Ast.Printex v -> print_exp v; Printf.printf "\n";
     
 let main() =
   try
-      let lexbuf = Lexing.from_channel stdin in
-      match Parser.main Lexer.token lexbuf with
+      let lexbu = Lexing.from_channel stdin in
+      match Parser.main Lexer.token lexbu with
       | Ast.Inputex s -> let ans = match s with
           | "" -> let lexbuf = Lexing.from_channel stdin in
-          while true do
-            let result = Parser.main Lexer.token lexbuf in
-            print_command result; flush stdout
-          done
-          | filename -> ();
+                  while true do
+                    let result = Parser.main Lexer.token lexbuf in
+                    print_command result; flush stdout
+                  done
+          | filename -> let file_channel = open_in filename in
+                        let lexbuf = Lexing.from_channel file_channel in
+                        (try
+                          while true do
+                            let result = Parser.main Lexer.token lexbuf in
+                            print_command result; flush stdout;
+                          done
+                        with Lexer.Eof -> close_in file_channel)
           in ans;
       | _ -> failwith "Expected first command to specify mode of input";
   with
