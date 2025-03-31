@@ -296,7 +296,7 @@ end = struct
     | _,_ -> failwith "Invalid input for empty matrix"
     in ans
   | Printex e -> Printex( eval (eval e) )
-  | Inputex s -> Intex 0 (* THIS WILL EVENTUALLY BE USED FOR READING INPUT FROM A FILE OR TERMINAL. DUMMY FOR NOW *)
+  | Inputex s -> Inputex s (* THIS WILL EVENTUALLY BE USED FOR READING INPUT FROM A FILE OR TERMINAL. DUMMY FOR NOW *)
   end
   
 let eval = Eval.eval

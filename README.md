@@ -85,6 +85,13 @@ Conditional statements can be passed with the following syntax:
 
 e.g., in `if a then b else c`, if a evaluates to true, then b is executed, else c is carried out.
 
+### Comments
+Any text between two `///` blocks will be treated as comments, and will be ignored for evaluation or any further processing.
+
+This can be used to make the code more explanatory.
+
+These comments can be used both inline and as comment blocks.
+
 ### Input and Output
 Source of input can be specified as either an external filename or the terminal. This functionality is yet to be added.
 

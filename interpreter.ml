@@ -31,7 +31,7 @@ let print_command = function
 Ast.Printex v -> print_exp v; Printf.printf "\n";
 | _ -> ()
 
-let main() =
+(* let main() =
   try
     let lexbuf = Lexing.from_channel stdin in
     while true do
@@ -39,11 +39,28 @@ let main() =
         print_command result; flush stdout
     done
   with Lexer.Eof ->
-    exit 0
+    exit 0 *)
+
+    
+let main() =
+  try
+      let lexbuf = Lexing.from_channel stdin in
+      match Parser.main Lexer.token lexbuf with
+      | Ast.Inputex s -> let ans = match s with
+          | "" -> let lexbuf = Lexing.from_channel stdin in
+          while true do
+            let result = Parser.main Lexer.token lexbuf in
+            print_command result; flush stdout
+          done
+          | filename -> ();
+          in ans;
+      | _ -> failwith "Expected first command to specify mode of input";
+  with
+    Lexer.Eof -> exit 0
+
 
 let () = main ()
-
-    (* 
+  (* 
     let rec string_of_exp = function
       | Ast.Intex n -> string_of_int n
       | Ast.Fltex f -> Printf.sprintf "%.2f" f
