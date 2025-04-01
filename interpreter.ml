@@ -61,7 +61,12 @@ let main() =
                             let result = Parser.main Lexer.token lexbuf in
                             print_command result; flush stdout;
                           done
-                        with Lexer.Eof -> close_in file_channel)
+                        with Lexer.Eof -> close_in file_channel;
+                                          let lexbuf = Lexing.from_channel stdin in
+                                          while true do
+                                            let result = Parser.main Lexer.token lexbuf in
+                                            print_command result; flush stdout
+                                          done)
           in ans;
       | _ -> failwith "Expected first command to specify mode of input";
   with

@@ -71,13 +71,18 @@ e.g. `{{3+4;2/3};33-2;{1/2}}` is valid, and gives `Seqex [Seqex [7;0]; 31; Seqex
 
 Comparison is carried out lexicographically, as per ASCII notation for the expression type defined in the Abstract Syntax Tree. Hence, the order followed is:
 
-Matrices > Vectors > Int=Float > true > false
+Matrices > Vectors > Float > Int > true > false
 
 
 ### For loop:
 Syntax is `for("initialisation","conditions","updations")"steps"`
 
 All parts in the syntax must be Sequence expressions, i.e., enclosed in braces, even if it contains a single expression inside it.
+
+### While loop:
+Syntax is `while (a) b`, where a is the loop invariant and b is the commands to be executed.
+
+Both a and b need to be Seqex, since in the background, the while loop calls the same expression as the for loop.
 
 ### Conditionals:
 Conditional statements can be passed with the following syntax:
@@ -95,7 +100,7 @@ These comments can be used both inline and as comment blocks.
 ### Input and Output
 The first line of the program must specify the source (channel) of input. Source of input can be specified as either an external filename or the terminal. This has 2 ways.
 - input() -> This continues taking in input from the terminal
-- input(file) -> This opens the file named 'file' and reads and executes commands from it line-by-line. 
+- input(path) -> This opens the file at 'path' and reads and executes commands from it line-by-line. 
 *The text file used in this must end in an empty line, i.e., the last typed character must be `\n`.*
 
 Output is printed in the terminal using `print(_)`, where the quantity to be printed is placed at the underscore.
