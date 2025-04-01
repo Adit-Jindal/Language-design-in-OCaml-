@@ -1,0 +1,5 @@
+A := [[1.0, 2, 2], [2, 1, 0], [2, 0, 1]]
+D:= |A|
+if (D==0.0 + D==0) then A' else {COF:=[3;3] ; for({I:=0},{I<3},{I:=I+1}){ for({J:=0},{J<3},{J:=J+1}){DM:=|A<<I,J>>|; DM:=DM*((-1)^(I+J)); COF:=(COF(I,J):=DM)} } ; COF:=_COF_ ; COF := (D)*COF }
+print(COF)
+///A' calls the built-in inversion function, which fails for singular matrics///

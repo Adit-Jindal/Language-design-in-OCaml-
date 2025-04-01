@@ -1,0 +1,5 @@
+THRESH:= (0.1)^6
+A:= [[0.1, 0], [0, 0.1]]
+ND := |A|
+while ({ND > THRESH}) {A:=A*A; ND:= |A|-THRESH}
+print(A)

@@ -1,0 +1,11 @@
+A:= [[2,3], [3,4]]
+B:= [[3,2], [4,3]]
+print(A)
+print(B)
+print(4*A)
+print(A+B)
+print(|A|)
+print(A*B)
+print(_A_)
+print(A')
+print([3,4])
